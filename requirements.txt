@@ -1,4 +1,7 @@
 pandas==2.3.3
+numpy==2.2.6
 nltk==3.9.4
-scikit-learn
-matplotlib
+scikit-learn==1.7.2
+spacy==3.8.14
+textblob==0.20.0
+joblib==1.5.3
