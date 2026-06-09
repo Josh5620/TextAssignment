@@ -1,4 +1,4 @@
-.claude
-.md
-.joblib
-.csv
+*.claude
+*.md
+*.joblib
+*.csv
