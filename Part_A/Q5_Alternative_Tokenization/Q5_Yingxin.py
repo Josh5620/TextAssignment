@@ -1,9 +1,13 @@
 from textblob import TextBlob
 import nltk
+from pathlib import Path
 from nltk.tokenize import word_tokenize
 
 
-with open("Data_1.txt", "r") as f:
+DATA_FILE = Path(__file__).resolve().parents[1] / "data" / "Data_1.txt"
+
+
+with open(DATA_FILE, "r", encoding="utf-8") as f:
     text = f.read()
 
 # NLTK

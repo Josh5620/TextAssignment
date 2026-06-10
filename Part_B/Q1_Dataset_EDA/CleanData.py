@@ -1,8 +1,13 @@
 import pandas as pd
 import re
+from pathlib import Path
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
+
+PART_B_DIR = Path(__file__).resolve().parents[1]
+RAW_DATA_FILE = PART_B_DIR / "data" / "cyberbullying_tweets.csv"
+CLEAN_DATA_FILE = PART_B_DIR / "data" / "cyberbullying_clean.csv"
 
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
@@ -20,7 +25,7 @@ def clean_tweet(text):
     return ' '.join(tokens)
 
 # --- Load and clean dataset ---
-df = pd.read_csv('cyberbullying_tweets.csv')
+df = pd.read_csv(RAW_DATA_FILE)
 df['clean'] = df['tweet_text'].apply(clean_tweet)
 
 
@@ -29,7 +34,8 @@ df = df.dropna(subset=['clean'])
 df = df[df['clean'].str.strip() != '']
 
 
-df.to_csv('cyberbullying_clean.csv', index=False)
+CLEAN_DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
+df.to_csv(CLEAN_DATA_FILE, index=False)
 
 
 

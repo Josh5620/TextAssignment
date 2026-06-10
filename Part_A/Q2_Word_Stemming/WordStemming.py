@@ -1,9 +1,14 @@
 import nltk
+from pathlib import Path
 from nltk.stem import RegexpStemmer, PorterStemmer, LancasterStemmer
 from nltk.tokenize import sent_tokenize, word_tokenize
 
+
+DATA_FILE = Path(__file__).resolve().parents[1] / "data" / "Data_1.txt"
+
+
 # Load text data
-with open("Data_1.txt", "r") as f:
+with open(DATA_FILE, "r", encoding="utf-8") as f:
     text = f.read()
 
 # Extract first 2 sentences and tokenize

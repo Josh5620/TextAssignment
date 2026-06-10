@@ -1,12 +1,17 @@
 import spacy
 import nltk
+from pathlib import Path
 from nltk.tokenize import word_tokenize
+
+
+DATA_FILE = Path(__file__).resolve().parents[1] / "data" / "Data_1.txt"
+
 
 # Load SpaCy model
 nlp = spacy.load("en_core_web_sm")
 
 # Load text data
-with open("Data_1.txt", "r") as f:
+with open(DATA_FILE, "r", encoding="utf-8") as f:
     text = f.read()
 
 # NLTK Tokenizer Q1

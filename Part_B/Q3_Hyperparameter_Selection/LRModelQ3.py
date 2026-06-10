@@ -1,12 +1,19 @@
 import pandas as pd
 import joblib
+from pathlib import Path
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.pipeline import Pipeline
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+
+
+PART_B_DIR = Path(__file__).resolve().parents[1]
+DATA_FILE = PART_B_DIR / "data" / "cyberbullying_clean.csv"
+MODEL_DIR = PART_B_DIR / "models"
+
 
 # --- Load Clean Data ---
-df = pd.read_csv('cyberbullying_clean.csv')
+df = pd.read_csv(DATA_FILE)
 
 # --- Split into train/test (same split as Q2 so results stay comparable) ---
 X_train, X_test, y_train, y_test = train_test_split(
@@ -17,17 +24,17 @@ X_train, X_test, y_train, y_test = train_test_split(
 # --- Base pipeline to tune (same as Q2) ---
 pipeline = Pipeline([
     ('tfidf', TfidfVectorizer(max_features=10000, ngram_range=(1, 2))),
-    ('clf', RandomForestClassifier(n_jobs=-1, random_state=42))
+    ('clf', LogisticRegression(max_iter=1000, n_jobs=-1, random_state=42))
 ])
 
 # --- Hyperparameter search space ---
 param_dist = {
-    'clf__n_estimators': [100, 200, 300],
-    'clf__max_depth': [None, 10, 20, 30],
-    'clf__max_features': ['sqrt', 'log2'],
-    'clf__min_samples_split': [2, 5, 10],
-    'clf__min_samples_leaf': [1, 2, 4],
-    'clf__criterion': ['gini', 'entropy']
+    'tfidf__max_features': [10000, 20000, 30000],
+    'tfidf__ngram_range': [(1, 1), (1, 2)],
+    'tfidf__sublinear_tf': [True, False],
+    'clf__C': [0.1, 0.5, 1.0, 2.0, 5.0],
+    'clf__penalty': ['l2'],
+    'clf__class_weight': [None, 'balanced']
 }
 
 # --- Randomized search ---
@@ -46,10 +53,11 @@ search.fit(X_train, y_train)
 print("=== Q3: Best Hyperparameters ===")
 print("=" * 45)
 for param, value in search.best_params_.items():
-    name = param.replace('clf__', '')   
+    name = param.replace('clf__', '').replace('tfidf__', '')
     print(f"  {name:<20} : {value}")
 print("=" * 45)
 print("Best CV Macro F1:", search.best_score_)
 
 # --- Save tuned model for Q4 ---
-joblib.dump(search.best_estimator_, 'rf_tuned.joblib')
+MODEL_DIR.mkdir(parents=True, exist_ok=True)
+joblib.dump(search.best_estimator_, MODEL_DIR / 'lr_tuned.joblib')

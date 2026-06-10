@@ -1,16 +1,23 @@
 from sklearn.feature_selection import chi2
 import pandas as pd
 import numpy as np
+from pathlib import Path
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 import joblib
 
+
+PART_B_DIR = Path(__file__).resolve().parents[1]
+DATA_FILE = PART_B_DIR / "data" / "cyberbullying_clean.csv"
+MODEL_FILE = PART_B_DIR / "models" / "lr_tuned.joblib"
+
+
 # --- Reload the trained pipeline ---
-pipeline = joblib.load('lr_tuned.joblib')
+pipeline = joblib.load(MODEL_FILE)
 vec = pipeline.named_steps['tfidf']
 feature_names = vec.get_feature_names_out()
 
-df = pd.read_csv('cyberbullying_clean.csv')
+df = pd.read_csv(DATA_FILE)
 
 X_train, X_test, y_train, y_test = train_test_split(
     df['clean'], df['cyberbullying_type'],
