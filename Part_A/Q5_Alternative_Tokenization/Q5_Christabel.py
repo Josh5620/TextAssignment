@@ -46,9 +46,3 @@ print("\n=== Q5 Alternative After Stop Word and Punctuation Removal ===")
 print(filtered_count_vectorizer_tokens)
 print(f"Filtered token count: {len(filtered_count_vectorizer_tokens)}")
 
-# Short explanation to support the comparison-and-contrast section of Q5.
-print("\n=== Comparison ===")
-print("NLTK word_tokenize keeps punctuation, stop words, and original capitalisation.")
-print("CountVectorizer tokenizes words and removes punctuation, but it does not keep punctuation as separate tokens.")
-print("CountVectorizer can also lowercase words and filter English stop words for machine learning features.")
-print("However, it is less suitable if punctuation, casing, or sentence structure must be preserved.")
