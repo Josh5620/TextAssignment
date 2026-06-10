@@ -16,14 +16,13 @@ with open(DATA_FILE, "r", encoding="utf-8") as file:
 q1_tokens = word_tokenize(text)
 
 # CountVectorizer is used as the alternative tokenization approach for Q5.
-# This version preserves capitalisation and keeps stop words, but punctuation is removed.
 raw_vectorizer = CountVectorizer(
     lowercase=False,
     token_pattern=r"(?u)\b\w+\b",
 )
 count_vectorizer_tokens = raw_vectorizer.build_analyzer()(text)
 
-# This version demonstrates how CountVectorizer can also remove stop words automatically.
+# CountVectorizer remove stop words automatically.
 filtered_vectorizer = CountVectorizer(
     stop_words="english",
     token_pattern=r"(?u)\b\w+\b",
@@ -45,4 +44,7 @@ print(f"Token count: {len(count_vectorizer_tokens)}")
 print("\n=== Q5 Alternative After Stop Word and Punctuation Removal ===")
 print(filtered_count_vectorizer_tokens)
 print(f"Filtered token count: {len(filtered_count_vectorizer_tokens)}")
+
+
+
 

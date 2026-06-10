@@ -42,7 +42,6 @@ param_dist = {
 }
 
 # RandomizedSearchCV tests several hyperparameter combinations using cross-validation.
-# Macro F1 is used because it treats all classes equally, which is helpful for imbalanced data.
 search = RandomizedSearchCV(
     pipeline,
     param_dist,
@@ -68,3 +67,7 @@ print("Best CV Macro F1:", search.best_score_)
 # Save the tuned Linear SVM model for Q4 evaluation.
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
 joblib.dump(search.best_estimator_, MODEL_DIR / "svm_tuned.joblib")
+
+
+
+

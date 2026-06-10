@@ -26,9 +26,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     stratify=df["cyberbullying_type"],
 )
 
-# Build a supervised text-classification pipeline.
-# TfidfVectorizer converts text into numerical TF-IDF features.
-# LinearSVC applies a Linear Support Vector Machine classifier to those features.
+# Building a supervised text-classification pipeline.
 pipeline = Pipeline(
     [
         ("tfidf", TfidfVectorizer(max_features=10000, ngram_range=(1, 2))),
@@ -36,7 +34,7 @@ pipeline = Pipeline(
     ]
 )
 
-# Train the Linear SVM model and save it for later evaluation.
+# Train the Linear SVM model for evaluation.
 pipeline.fit(X_train, y_train)
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
 joblib.dump(pipeline, MODEL_DIR / "svm_pipeline.joblib")
@@ -47,3 +45,6 @@ predictions = pipeline.predict(X_test)
 # Print precision, recall, F1-score, and accuracy for Q2 model reporting.
 print("=== Q2: Linear SVM Classification Report ===")
 print(classification_report(y_test, predictions))
+
+
+
