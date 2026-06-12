@@ -1,51 +1,66 @@
 import joblib
 import pandas as pd
 from pathlib import Path
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import RandomizedSearchCV, train_test_split
 from sklearn.pipeline import Pipeline
-from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.svm import LinearSVC
 
 
 PART_B_DIR = Path(__file__).resolve().parents[1]
-DATA_FILE = PART_B_DIR / "data" / "cyberbullying_clean.csv"
+DATA_FILE = PART_B_DIR / "data" / "tripadvisor_clean.csv"
 MODEL_DIR = PART_B_DIR / "models"
 
 
-# Load the cleaned dataset created in Q1.
-df = pd.read_csv(DATA_FILE)
+# Load the same cleaned TripAdvisor dataset used by the Q2 Linear SVM model.
+df = pd.read_csv(DATA_FILE, usecols=["clean_text", "label"])
+df = df.dropna(subset=["clean_text", "label"]).copy()
+df["clean_text"] = df["clean_text"].astype(str).str.strip()
+df = df[df["clean_text"] != ""]
 
-# Use the same train-test split settings as Q2 so model results are comparable.
+# Recreate the same split so Q2, Q3, and Q4 results remain comparable.
 X_train, X_test, y_train, y_test = train_test_split(
-    df["clean"],
-    df["cyberbullying_type"],
+    df["clean_text"],
+    df["label"],
     test_size=0.2,
     random_state=42,
-    stratify=df["cyberbullying_type"],
+    stratify=df["label"],
 )
 
-# Create the base Linear SVM pipeline before tuning.
+# Negation is preserved by the cleaning script before TF-IDF is applied.
 pipeline = Pipeline(
     [
-        ("tfidf", TfidfVectorizer()),
-        ("clf", LinearSVC(max_iter=5000, random_state=42)),
+        (
+            "tfidf",
+            TfidfVectorizer(
+                strip_accents="unicode",
+            ),
+        ),
+        (
+            "clf",
+            LinearSVC(
+                max_iter=5000,
+                random_state=42,
+            ),
+        ),
     ]
 )
 
-# Hyperparameter search space for both TF-IDF feature extraction and Linear SVM.
+# Tune both TF-IDF feature extraction and Linear SVM hyperparameters.
 param_dist = {
     "tfidf__max_features": [10000, 20000, 30000],
     "tfidf__ngram_range": [(1, 1), (1, 2)],
+    "tfidf__min_df": [1, 2, 3],
     "tfidf__sublinear_tf": [True, False],
-    "clf__C": [0.1, 0.5, 1.0, 2.0, 5.0],
+    "clf__C": [0.05, 0.1, 0.5, 1.0, 2.0, 5.0, 10.0],
     "clf__class_weight": [None, "balanced"],
 }
 
-# RandomizedSearchCV tests several hyperparameter combinations using cross-validation.
+# Macro F1 gives equal importance to the positive and minority negative classes.
 search = RandomizedSearchCV(
     pipeline,
     param_dist,
-    n_iter=10,
+    n_iter=20,
     cv=5,
     scoring="f1_macro",
     random_state=42,
@@ -55,19 +70,17 @@ search = RandomizedSearchCV(
 
 search.fit(X_train, y_train)
 
-# Report the best hyperparameters found for the Q3 discussion.
-print("=== Q3: Linear SVM Best Hyperparameters ===")
-print("=" * 45)
+print("=== Q3: TripAdvisor Linear SVM Best Hyperparameters ===")
+print("=" * 55)
 for param, value in search.best_params_.items():
     name = param.replace("clf__", "").replace("tfidf__", "")
     print(f"  {name:<20} : {value}")
-print("=" * 45)
-print("Best CV Macro F1:", search.best_score_)
+print("=" * 55)
+print(f"Best CV Macro F1: {search.best_score_:.4f}")
 
-# Save the tuned Linear SVM model for Q4 evaluation.
+# Save separately so the older cyberbullying model is not overwritten.
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
-joblib.dump(search.best_estimator_, MODEL_DIR / "svm_tuned.joblib")
-
-
-
-
+joblib.dump(
+    search.best_estimator_,
+    MODEL_DIR / "svm_tripadvisor_tuned.joblib",
+)
