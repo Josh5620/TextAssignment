@@ -2,3 +2,5 @@
 *.md
 *.joblib
 *.csv
+*.venv
+*.vscode

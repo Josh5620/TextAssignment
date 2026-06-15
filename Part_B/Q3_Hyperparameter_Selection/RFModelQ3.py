@@ -8,20 +8,20 @@ from sklearn.ensemble import RandomForestClassifier
 
 
 PART_B_DIR = Path(__file__).resolve().parents[1]
-DATA_FILE = PART_B_DIR / "data" / "cyberbullying_clean.csv"
+DATA_FILE = PART_B_DIR / "data" / "yelp_review_full_clean.csv"
 MODEL_DIR = PART_B_DIR / "models"
 
 
-# --- Load Clean Data ---
+# --- Load cleaned Yelp reviews ---
 df = pd.read_csv(DATA_FILE)
 
 # --- Split into train/test (same split as Q2 so results stay comparable) ---
 X_train, X_test, y_train, y_test = train_test_split(
-    df['clean'], df['cyberbullying_type'],
-    test_size=0.2, random_state=42, stratify=df['cyberbullying_type']
+    df['clean'], df['rating'],
+    test_size=0.2, random_state=42, stratify=df['rating']
 )
 
-# --- Base pipeline to tune (same as Q2) ---
+# --- Base pipeline to tune (same as Q2 Yelp RF) ---
 pipeline = Pipeline([
     ('tfidf', TfidfVectorizer(max_features=10000, ngram_range=(1, 2))),
     ('clf', RandomForestClassifier(n_jobs=-1, random_state=42))
@@ -60,4 +60,4 @@ print("Best CV Macro F1:", search.best_score_)
 
 # --- Save tuned model for Q4 ---
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
-joblib.dump(search.best_estimator_, MODEL_DIR / 'rf_tuned.joblib')
+joblib.dump(search.best_estimator_, MODEL_DIR / 'rf_yelp_tuned.joblib')
