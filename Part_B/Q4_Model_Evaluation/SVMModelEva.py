@@ -73,7 +73,7 @@ weighted_f1 = precision_recall_fscore_support(
     zero_division=0,
 )[2]
 
-print("\n=== Q4: Tuned Yelp Linear SVM Classification Report ===")
+print("\n=== Q4: Tuned Yelp Linear SVM 3-Class Classification Report ===")
 print(classification_report(y_test, predictions, digits=4, zero_division=0))
 
 print("=== Q4: Tuned Yelp Linear SVM Summary ===")

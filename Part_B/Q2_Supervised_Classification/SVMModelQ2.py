@@ -13,7 +13,7 @@ DATA_FILE = PART_B_DIR / "data" / "yelp_clean.csv"
 MODEL_DIR = PART_B_DIR / "models"
 
 
-# Load the negation-aware cleaned Yelp reviews and 3-class sentiment labels.
+# Load the cleaned Yelp reviews and three-class sentiment labels.
 df = pd.read_csv(DATA_FILE, usecols=["clean_text", "sentiment"])
 df = df.dropna(subset=["clean_text", "sentiment"]).copy()
 df["clean_text"] = df["clean_text"].astype(str).str.strip()
@@ -52,7 +52,7 @@ pipeline = Pipeline(
     ]
 )
 
-# Train and save the baseline Yelp Linear SVM model.
+# Train and save the baseline three-class Yelp Linear SVM model.
 pipeline.fit(X_train, y_train)
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
 joblib.dump(pipeline, MODEL_DIR / "svm_pipeline.joblib")

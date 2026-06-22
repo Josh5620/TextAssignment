@@ -12,7 +12,7 @@ DATA_FILE = PART_B_DIR / "data" / "yelp_clean.csv"
 MODEL_DIR = PART_B_DIR / "models"
 
 
-# Load the same cleaned Yelp dataset used by the Q2 Linear SVM model.
+# Load the same cleaned three-class Yelp dataset used by the Q2 Linear SVM model.
 df = pd.read_csv(DATA_FILE, usecols=["clean_text", "sentiment"])
 df = df.dropna(subset=["clean_text", "sentiment"]).copy()
 df["clean_text"] = df["clean_text"].astype(str).str.strip()
@@ -56,7 +56,7 @@ param_dist = {
     "clf__class_weight": [None, "balanced"],
 }
 
-# Macro F1 gives equal importance to the positive and minority negative classes.
+# Macro F1 gives equal importance to negative, neutral, and positive classes.
 search = RandomizedSearchCV(
     pipeline,
     param_dist,
