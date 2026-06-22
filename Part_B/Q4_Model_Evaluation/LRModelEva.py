@@ -8,7 +8,7 @@ import joblib
 
 
 PART_B_DIR = Path(__file__).resolve().parents[1]
-DATA_FILE = PART_B_DIR / "data" / "cyberbullying_clean.csv"
+DATA_FILE = PART_B_DIR / "data" / "yelp_clean.csv"
 MODEL_FILE = PART_B_DIR / "models" / "lr_tuned.joblib"
 
 
@@ -20,8 +20,8 @@ feature_names = vec.get_feature_names_out()
 df = pd.read_csv(DATA_FILE)
 
 X_train, X_test, y_train, y_test = train_test_split(
-    df['clean'], df['cyberbullying_type'],
-    test_size=0.2, random_state=42, stratify=df['cyberbullying_type']
+    df['clean_text'], df['sentiment'],
+    test_size=0.2, random_state=42, stratify=df['sentiment']
 )
 
 X_vec = vec.transform(X_train)
@@ -34,6 +34,6 @@ for cls in sorted(y_train.unique()):
     print(f"\n{cls}:")
     print(", ".join(top))
 
-print("=== Q3: Tuned Logistic Regression Classification Report ===")
+print("=== Q4: Tuned Logistic Regression Classification Report (Yelp 3-class sentiment) ===")
 preds = pipeline.predict(X_test)
 print(classification_report(y_test, preds))

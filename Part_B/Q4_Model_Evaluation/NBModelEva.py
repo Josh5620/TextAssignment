@@ -9,7 +9,7 @@ import joblib
 
 PART_B_DIR = Path(__file__).resolve().parents[1]
 DATA_FILE = PART_B_DIR / "data" / "yelp_clean.csv"
-MODEL_FILE = PART_B_DIR / "models" / "rf_tuned.joblib"
+MODEL_FILE = PART_B_DIR / "models" / "nb_tuned.joblib"
 
 
 # --- Reload the trained pipeline ---
@@ -33,7 +33,7 @@ for cls in sorted(y_train.unique()):
     top = np.array(feature_names)[scores.argsort()[::-1][:10]]
     print(f"\n{cls}:")
     print(", ".join(top))
-    
-print("=== Q4: Tuned Random Forest Classification Report (Yelp 3-class sentiment) ===")
+
+print("=== Q4: Tuned Multinomial Naive Bayes Classification Report (Yelp 3-class sentiment) ===")
 preds = pipeline.predict(X_test)
 print(classification_report(y_test, preds))

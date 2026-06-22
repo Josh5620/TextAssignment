@@ -4,7 +4,7 @@ from pathlib import Path
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.pipeline import Pipeline
-from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import MultinomialNB
 
 
 PART_B_DIR = Path(__file__).resolve().parents[1]
@@ -24,7 +24,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 # --- Base pipeline to tune (same as Q2) ---
 pipeline = Pipeline([
     ('tfidf', TfidfVectorizer(max_features=10000, ngram_range=(1, 2))),
-    ('clf', LogisticRegression(max_iter=1000, n_jobs=-1, random_state=42))
+    ('clf', MultinomialNB())
 ])
 
 # --- Hyperparameter search space ---
@@ -32,14 +32,13 @@ param_dist = {
     'tfidf__max_features': [10000, 20000, 30000],
     'tfidf__ngram_range': [(1, 1), (1, 2)],
     'tfidf__sublinear_tf': [True, False],
-    'clf__C': [0.1, 0.5, 1.0, 2.0, 5.0],
-    'clf__penalty': ['l2'],
-    'clf__class_weight': [None, 'balanced']
+    'clf__alpha': [0.1, 0.5, 1.0, 2.0],   # Laplace/Lidstone smoothing
+    'clf__fit_prior': [True, False]       # learn class priors vs uniform
 }
 
 # --- Randomized search ---
 # n_iter=10 tries 10 random combinations
-# cv=5 uses 5-fold cross validation, scoring on macro F1 (balanced classes)
+# cv=5 uses 5-fold cross validation, scoring on macro F1 (equal weight per class)
 search = RandomizedSearchCV(
     pipeline, param_dist,
     n_iter=10, cv=5,
@@ -60,4 +59,4 @@ print("Best CV Macro F1:", search.best_score_)
 
 # --- Save tuned model for Q4 ---
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
-joblib.dump(search.best_estimator_, MODEL_DIR / 'lr_tuned.joblib')
+joblib.dump(search.best_estimator_, MODEL_DIR / 'nb_tuned.joblib')

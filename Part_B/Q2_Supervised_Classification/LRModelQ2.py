@@ -9,17 +9,17 @@ import joblib
 
 
 PART_B_DIR = Path(__file__).resolve().parents[1]
-DATA_FILE = PART_B_DIR / "data" / "cyberbullying_clean.csv"
+DATA_FILE = PART_B_DIR / "data" / "yelp_clean.csv"
 MODEL_DIR = PART_B_DIR / "models"
 
 
-# --- Load Clean Data ---
+# --- Load Clean Data (Yelp 3-class sentiment) ---
 df = pd.read_csv(DATA_FILE)
 
-# --- Split into train/test (stratify by 'cyberbullying_type', random state for reproducibility) ---
+# --- Split into train/test (stratify by 'sentiment', random state for reproducibility) ---
 X_train, X_test, y_train, y_test = train_test_split(
-    df['clean'], df['cyberbullying_type'],
-    test_size=0.2, random_state=42, stratify=df['cyberbullying_type']
+    df['clean_text'], df['sentiment'],
+    test_size=0.2, random_state=42, stratify=df['sentiment']
 )
 
 # --- Build Logistic Regression pipeline ---
@@ -38,5 +38,5 @@ joblib.dump(pipeline, MODEL_DIR / 'lr_pipeline.joblib')
 preds = pipeline.predict(X_test)
 
 # --- Report base performance measures ---
-print("=== Q2: Logistic Regression Classification Report ===")
+print("=== Q2: Logistic Regression Classification Report (Yelp 3-class sentiment) ===")
 print(classification_report(y_test, preds))

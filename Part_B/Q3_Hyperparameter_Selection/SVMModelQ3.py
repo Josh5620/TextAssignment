@@ -8,23 +8,23 @@ from sklearn.svm import LinearSVC
 
 
 PART_B_DIR = Path(__file__).resolve().parents[1]
-DATA_FILE = PART_B_DIR / "data" / "tripadvisor_clean.csv"
+DATA_FILE = PART_B_DIR / "data" / "yelp_clean.csv"
 MODEL_DIR = PART_B_DIR / "models"
 
 
-# Load the same cleaned TripAdvisor dataset used by the Q2 Linear SVM model.
-df = pd.read_csv(DATA_FILE, usecols=["clean_text", "label"])
-df = df.dropna(subset=["clean_text", "label"]).copy()
+# Load the same cleaned Yelp dataset used by the Q2 Linear SVM model.
+df = pd.read_csv(DATA_FILE, usecols=["clean_text", "sentiment"])
+df = df.dropna(subset=["clean_text", "sentiment"]).copy()
 df["clean_text"] = df["clean_text"].astype(str).str.strip()
 df = df[df["clean_text"] != ""]
 
 # Recreate the same split so Q2, Q3, and Q4 results remain comparable.
 X_train, X_test, y_train, y_test = train_test_split(
     df["clean_text"],
-    df["label"],
+    df["sentiment"],
     test_size=0.2,
     random_state=42,
-    stratify=df["label"],
+    stratify=df["sentiment"],
 )
 
 # Negation is preserved by the cleaning script before TF-IDF is applied.
@@ -70,7 +70,7 @@ search = RandomizedSearchCV(
 
 search.fit(X_train, y_train)
 
-print("=== Q3: TripAdvisor Linear SVM Best Hyperparameters ===")
+print("=== Q3: Yelp Linear SVM Best Hyperparameters (3-class sentiment) ===")
 print("=" * 55)
 for param, value in search.best_params_.items():
     name = param.replace("clf__", "").replace("tfidf__", "")
@@ -78,9 +78,9 @@ for param, value in search.best_params_.items():
 print("=" * 55)
 print(f"Best CV Macro F1: {search.best_score_:.4f}")
 
-# Save separately so the older cyberbullying model is not overwritten.
+# Save the tuned Yelp Linear SVM model for Q4.
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
 joblib.dump(
     search.best_estimator_,
-    MODEL_DIR / "svm_tripadvisor_tuned.joblib",
+    MODEL_DIR / "svm_tuned.joblib",
 )
