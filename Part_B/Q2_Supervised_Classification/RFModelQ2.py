@@ -20,10 +20,12 @@ X_train, X_test, y_train, y_test = train_test_split(
     test_size=0.2, random_state=42, stratify=df['sentiment']
 )
 # --- Build RF pipeline ---
-# tfidf: review text -> numeric features (10k vocab cap, single words + pairs)
+# tfidf: review text -> numeric features. Shared config across all 4 Q2 models for a
+#        fair comparison: 10k vocab, 1-2 grams, min_df=2, sublinear_tf, strip_accents.
 # clf: 200 trees, parallel training, fixed randomness for the 3-class sentiment label
 pipeline = Pipeline([
-    ('tfidf', TfidfVectorizer(max_features=10000, ngram_range=(1, 2))),
+    ('tfidf', TfidfVectorizer(max_features=10000, ngram_range=(1, 2),
+                              min_df=2, sublinear_tf=True, strip_accents="unicode")),
     ('clf', RandomForestClassifier(n_estimators=200, n_jobs=-1, random_state=42))
 ])
 

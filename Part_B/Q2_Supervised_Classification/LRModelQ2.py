@@ -23,10 +23,12 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # --- Build Logistic Regression pipeline ---
-# tfidf: text -> numeric features (10k vocab cap, single words + pairs)
+# tfidf: text -> numeric features. Shared config across all 4 Q2 models for a fair
+#        comparison: 10k vocab, 1-2 grams, min_df=2, sublinear_tf, strip_accents.
 # clf: multinomial logistic regression, balanced classes, more iters to converge
 pipeline = Pipeline([
-    ('tfidf', TfidfVectorizer(max_features=10000, ngram_range=(1, 2))),
+    ('tfidf', TfidfVectorizer(max_features=10000, ngram_range=(1, 2),
+                              min_df=2, sublinear_tf=True, strip_accents="unicode")),
     ('clf', LogisticRegression(max_iter=1000, class_weight='balanced',
                                n_jobs=-1, random_state=42))
 ])

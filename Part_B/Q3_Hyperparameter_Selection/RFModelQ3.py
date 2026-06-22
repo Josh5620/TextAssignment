@@ -22,13 +22,20 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # --- Base pipeline to tune (same as Q2 Yelp RF) ---
+# strip_accents is fixed; max_features/ngram_range/min_df/sublinear_tf are tuned below.
 pipeline = Pipeline([
-    ('tfidf', TfidfVectorizer(max_features=10000, ngram_range=(1, 2))),
+    ('tfidf', TfidfVectorizer(strip_accents="unicode")),
     ('clf', RandomForestClassifier(n_jobs=-1, random_state=42))
 ])
 
 # --- Hyperparameter search space ---
+# Same TF-IDF search space across all 4 Q3 models for a fair comparison, plus the
+# RandomForest-specific hyperparameters.
 param_dist = {
+    'tfidf__max_features': [10000, 20000, 30000],
+    'tfidf__ngram_range': [(1, 1), (1, 2)],
+    'tfidf__min_df': [1, 2, 3],
+    'tfidf__sublinear_tf': [True, False],
     'clf__n_estimators': [100, 200, 300],
     'clf__max_depth': [None, 10, 20, 30],
     'clf__max_features': ['sqrt', 'log2'],
@@ -53,7 +60,9 @@ search.fit(X_train, y_train)
 print("=== Q3: Best Hyperparameters ===")
 print("=" * 45)
 for param, value in search.best_params_.items():
-    name = param.replace('clf__', '')   
+    # RF tunes BOTH tfidf__max_features and clf__max_features, so keep a "tfidf_"
+    # prefix on the vectorizer params to keep the printout unambiguous.
+    name = param.replace('clf__', '').replace('tfidf__', 'tfidf_')
     print(f"  {name:<20} : {value}")
 print("=" * 45)
 print("Best CV Macro F1:", search.best_score_)

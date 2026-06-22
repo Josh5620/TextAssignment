@@ -22,15 +22,18 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # --- Base pipeline to tune (same as Q2) ---
+# strip_accents is fixed; max_features/ngram_range/min_df/sublinear_tf are tuned below.
 pipeline = Pipeline([
-    ('tfidf', TfidfVectorizer(max_features=10000, ngram_range=(1, 2))),
+    ('tfidf', TfidfVectorizer(strip_accents="unicode")),
     ('clf', MultinomialNB())
 ])
 
 # --- Hyperparameter search space ---
+# Same TF-IDF search space across all 4 Q3 models for a fair comparison.
 param_dist = {
     'tfidf__max_features': [10000, 20000, 30000],
     'tfidf__ngram_range': [(1, 1), (1, 2)],
+    'tfidf__min_df': [1, 2, 3],
     'tfidf__sublinear_tf': [True, False],
     'clf__alpha': [0.1, 0.5, 1.0, 2.0],   # Laplace/Lidstone smoothing
     'clf__fit_prior': [True, False]       # learn class priors vs uniform

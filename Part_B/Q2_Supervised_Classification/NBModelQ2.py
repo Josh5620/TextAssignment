@@ -23,11 +23,13 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # --- Build Multinomial Naive Bayes pipeline ---
-# tfidf: text -> numeric features (10k vocab cap, single words + pairs)
+# tfidf: text -> numeric features. Shared config across all 4 Q2 models for a fair
+#        comparison: 10k vocab, 1-2 grams, min_df=2, sublinear_tf, strip_accents.
 # clf: multinomial NB, a fast probabilistic baseline for sparse TF-IDF counts.
 # (MultinomialNB has no class_weight option, so none is set.)
 pipeline = Pipeline([
-    ('tfidf', TfidfVectorizer(max_features=10000, ngram_range=(1, 2))),
+    ('tfidf', TfidfVectorizer(max_features=10000, ngram_range=(1, 2),
+                              min_df=2, sublinear_tf=True, strip_accents="unicode")),
     ('clf', MultinomialNB())
 ])
 
