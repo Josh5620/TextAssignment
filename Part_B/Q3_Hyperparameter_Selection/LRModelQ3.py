@@ -47,7 +47,7 @@ search = RandomizedSearchCV(
     pipeline, param_dist,
     n_iter=10, cv=5,
     scoring='f1_macro',
-    random_state=42, n_jobs=-1, verbose=2
+    random_state=42, n_jobs=-1, verbose=0
 )
 
 search.fit(X_train, y_train)
