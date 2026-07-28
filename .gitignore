@@ -6,3 +6,10 @@
 *.vscode
 __pycache__/
 *.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Part B generated data & model artifacts (regenerated from the pipeline)
+Part_B/data/*.csv
+Part_B/models/
