@@ -1,17 +1,4 @@
-"""
-Text cleaning for the Part B sentiment pipeline.
-
-Turns a raw review into a space-separated string of lemmas: lowercased, URLs and HTML
-stripped, contractions expanded, emoticons and punctuation removed, stop words dropped,
-then POS-aware lemmatisation.
-
-keep_negation (default True) holds "not", "no", "never" and the rest out of the stop word
-list. Removing them would turn "not good" into "good", which is the wrong sentiment.
-
-Usage:
-    from clean_review import clean_review
-    df["clean_text"] = df["review"].apply(clean_review)
-"""
+"""Cleaning function shared by all four Part B models, so every result uses the same input."""
 import re
 
 import nltk
@@ -23,7 +10,8 @@ nltk.download("wordnet", quiet=True)
 nltk.download("omw-1.4", quiet=True)
 nltk.download("averaged_perceptron_tagger_eng", quiet=True)
 
-# These are stop words, so they would normally be deleted. keep_negation protects them.
+# These are all in NLTK's stop word list, so they would normally be deleted. Dropping them
+# would turn "not good" into "good", so they are held back.
 NEGATION_WORDS = {
     "no", "nor", "not", "never", "neither", "nothing", "nowhere",
     "hardly", "barely", "scarcely", "without",
@@ -33,18 +21,18 @@ _STOP_KEEP_NEG = _FULL_STOPWORDS - NEGATION_WORDS
 _STOP_TEXTBOOK = _FULL_STOPWORDS
 
 _lemmatizer = WordNetLemmatizer()
-_lemma_cache = {}   # 30k reviews repeat the same words constantly, so cache the lemmas
+_lemma_cache = {}   # the same words repeat across 30k reviews, so don't lemmatise twice
 
-# Removed before the letters-only tokeniser, otherwise a face like ":D" leaves a stray
-# "d" token behind. Written lowercase because the text is lowercased first.
+# Has to be removed before the letters-only step, or ":D" leaves a stray "d" behind.
+# Written lowercase because the text is lowercased first.
 _EMOTICONS = re.compile(
     r"(:-?\)|:-?\]|=\)|\(:|:-?d|=d|;-?\)|:'\)|:-?\(|:-?\[|=\(|\):|:-?/|:-?\\|:'\(|d:)"
 )
 
 
 def _penn_to_wordnet(tag):
-    # WordNet wants a/v/r/n, NLTK's tagger gives Penn Treebank tags. Without this the
-    # lemmatiser assumes everything is a noun and "better" never becomes "good".
+    # NLTK's tagger returns Penn tags (JJ, VBD, RB); WordNet only takes a/v/r/n. Without
+    # this the lemmatiser treats every word as a noun and "better" never becomes "good".
     if tag.startswith("J"):
         return "a"
     if tag.startswith("V"):
@@ -62,8 +50,8 @@ def _lemmatize(word, pos):
 
 
 def _expand_contractions(text):
-    # Has to run before punctuation is stripped. Otherwise "wasn't" becomes "wasnt",
-    # one meaningless token, and the negation is lost.
+    # Must run before punctuation is stripped, or "wasn't" turns into "wasnt" and the
+    # "not" disappears with it. won't and cannot need their own rules, they are irregular.
     text = re.sub(r"\bwon't\b", "will not", text)
     text = re.sub(r"\bcan't\b", "can not", text)
     text = re.sub(r"\bcannot\b", "can not", text)
@@ -73,7 +61,7 @@ def _expand_contractions(text):
 
 def clean_review(text, keep_negation=True):
     text = str(text).lower().replace("’", "'")
-    # Scraped reviews carry these as literal two-character sequences, not real newlines.
+    # The scraped reviews contain these as the two characters \ and n, not real newlines.
     text = text.replace("\\n", " ").replace("\\t", " ").replace("\\r", " ")
     text = re.sub(r"http\S+|www\S+", " ", text)
     text = re.sub(r"<[^>]+>", " ", text)
@@ -84,6 +72,7 @@ def clean_review(text, keep_negation=True):
     tokens = re.findall(r"[a-z]+", text)
 
     stop = _STOP_KEEP_NEG if keep_negation else _STOP_TEXTBOOK
+    # Tag before filtering, so the tagger still has the stop words around it for context.
     tags = nltk.pos_tag(tokens)
     cleaned = [
         _lemmatize(tok, _penn_to_wordnet(tag))
