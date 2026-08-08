@@ -11,21 +11,21 @@
 #         punkt, punkt_tab, stopwords, wordnet, averaged_perceptron_tagger
 
 # ---- core data / modelling ----
-pandas==2.3.3
-numpy==2.2.6
-scikit-learn==1.7.2
-joblib==1.5.3
+pandas>=2.2,<3
+numpy>=2.1,<3
+scikit-learn>=1.6,<2
+joblib>=1.4,<2
 
 # ---- NLP ----
-nltk==3.9.4
-spacy==3.8.14
-textblob==0.20.0
-transformers==5.14.1        # Part_A Q5 (Genemor): BERT WordPiece tokeniser
+nltk>=3.9.2,<4
+spacy>=3.8.11,<4
+textblob>=0.19,<1
+transformers>=4.45,<6       # Part_A Q5 (Genemor): BERT WordPiece tokeniser
 
 # ---- plotting (Part_B Q1 EDA charts) ----
-matplotlib==3.10.1
-seaborn==0.13.2
-wordcloud==1.9.6
+matplotlib>=3.9,<4
+seaborn>=0.13,<1
+wordcloud>=1.9.3,<2
 
 # ---- notebook execution ----
-ipykernel==7.2.0
+ipykernel>=6.29,<8
